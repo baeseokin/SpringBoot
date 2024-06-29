@@ -1,23 +1,23 @@
 package com.example;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
 public class PaymentService {
-    public Payment prepare(Long orderId, String currency, BigDecimal foreignCurrencyAmount){
+    private final ExRateProvider exRateProvider;
 
-        //환율 가져오기
-        //금액 계산
-        //유효 시간 계산
-
-
-        return new Payment(orderId, currency,foreignCurrencyAmount, BigDecimal.ZERO, BigDecimal.ZERO, LocalDateTime.now());
+    public PaymentService(ExRateProvider exRateProvider) {
+        this.exRateProvider = exRateProvider;
     }
 
+    public Payment prepare(Long orderId, String currency, BigDecimal foreignCurrencyAmount) throws IOException {
+        BigDecimal exrate = exRateProvider.getExRate(currency);
+        BigDecimal convertedAmount = foreignCurrencyAmount.multiply(exrate);
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(30);
 
-    public static void main(String[] args) {
-        PaymentService paymentService = new PaymentService();
-        Payment payment = paymentService.prepare(100L, "USD", BigDecimal.valueOf(50.7));
-        System.out.println(payment);
+        return new Payment(orderId, currency,foreignCurrencyAmount, exrate, convertedAmount, validUntil);
     }
+
 }
