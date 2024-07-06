@@ -1,6 +1,8 @@
-package com.example;
+package com.example.exrate;
 
+import com.example.payment.ExRateProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.stream.Collectors;
 
-public class WebApiExRateProvider implements ExRateProvider{
+@Component
+public class WebApiExRateProvider implements ExRateProvider {
     @Override
     public BigDecimal getExRate(String currency) throws IOException {
         @SuppressWarnings("deprecation")
@@ -23,8 +26,9 @@ public class WebApiExRateProvider implements ExRateProvider{
 
         ObjectMapper mapper = new ObjectMapper();
         ExRateData data = mapper.readValue(response, ExRateData.class);
-        BigDecimal exrate = data.rates().get("KRW");
 
-        return exrate;
+        System.out.println("API ExRate : " + data.rates().get("KRW"));
+        return data.rates().get("KRW");
+
     }
 }
